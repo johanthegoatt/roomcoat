@@ -1,0 +1,172 @@
+/* RoomCoat. A fresh-painted room: chalk white, deep teal for actions,
+   soft swatches for each paint, big inputs that work with a tape measure
+   in the other hand. */
+
+:root {
+  --bg: #f6f4ef;
+  --surface: #ffffff;
+  --surface-2: #f1efe8;
+  --ink: #263330;
+  --ink-2: #5c6b67;
+  --line: #e2ded3;
+  --accent: #2f6f6a;
+  --accent-ink: #ffffff;
+  --accent-soft: #dcece9;
+  --warn: #a4471f;
+  --shadow: 0 10px 26px -14px rgba(38, 51, 48, 0.35), 0 1px 0 rgba(38, 51, 48, 0.05);
+  --radius: 20px;
+  --radius-s: 12px;
+  --round: ui-rounded, "SF Pro Rounded", "Nunito", "Segoe UI Variable Display", system-ui, sans-serif;
+  --body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #141a19;
+    --surface: #1d2523;
+    --surface-2: #232d2b;
+    --ink: #e8efed;
+    --ink-2: #a9b8b4;
+    --line: #34413e;
+    --accent: #7cc4bc;
+    --accent-ink: #10201e;
+    --accent-soft: #23403c;
+    --warn: #f0a07c;
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.5 var(--body);
+  padding: 0 16px 140px;
+}
+
+.skip { position: absolute; left: -999px; }
+.skip:focus { left: 16px; top: 8px; background: var(--surface); padding: 8px 12px; border-radius: 8px; z-index: 10; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+.top, main, .foot { max-width: 720px; margin: 0 auto; }
+.top { padding: 32px 0 12px; }
+.top h1 { font: 800 clamp(2rem, 7vw, 2.8rem)/1.05 var(--round); margin: 0; letter-spacing: -0.02em; color: var(--accent); }
+.lede { margin: 8px 0 0; color: var(--ink-2); font-size: 1.05rem; max-width: 34rem; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+  margin: 16px 0;
+}
+.card h2 { font: 700 1.2rem/1.2 var(--round); margin: 0 0 14px; display: flex; align-items: center; gap: 10px; }
+.num {
+  display: inline-grid; place-items: center;
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--accent-soft); color: var(--accent); font-size: 0.95rem;
+}
+.hint { color: var(--ink-2); margin: -4px 0 14px; font-size: 0.95rem; }
+
+.row, .dims { display: flex; flex-wrap: wrap; gap: 12px; }
+.dims { margin-bottom: 12px; }
+.field { display: flex; flex-direction: column; gap: 4px; flex: 1 1 150px; min-width: 0; }
+.field > span { font-size: 0.85rem; font-weight: 600; color: var(--ink-2); }
+.field.grow { flex: 3 1 200px; }
+.field.swatch { flex: 0 0 auto; }
+.read { min-height: 1.2em; font-size: 0.8rem; color: var(--ink-2); }
+[aria-invalid="true"] + .read { color: var(--warn); font-weight: 600; }
+
+input, select {
+  font: inherit;
+  color: var(--ink);
+  background: var(--surface-2);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-s);
+  padding: 10px 12px;
+  min-height: 46px;
+  width: 100%;
+}
+input[type="color"] { padding: 4px; width: 64px; cursor: pointer; }
+input:focus-visible, select:focus-visible, button:focus-visible, summary:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+input[aria-invalid="true"] { border-color: var(--warn); }
+
+.check { display: flex; align-items: center; gap: 10px; margin: 8px 0; min-height: 32px; cursor: pointer; }
+.check input { width: 22px; height: 22px; min-height: 0; accent-color: var(--accent); }
+
+.room {
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-s);
+  padding: 14px;
+  margin-bottom: 14px;
+  background: var(--surface);
+}
+.room-head { display: flex; gap: 8px; margin-bottom: 12px; }
+.room-name { font: 700 1.05rem var(--round); background: transparent; border-color: transparent; padding-left: 4px; }
+.room-name:hover { border-color: var(--line); }
+.room-sum { margin: 8px 0 0; color: var(--ink-2); font-size: 0.9rem; }
+.room-sum:empty { display: none; }
+
+.btn {
+  font: 700 1rem var(--round);
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 20px;
+  min-height: 46px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  cursor: pointer;
+}
+.btn.ghost { background: var(--accent-soft); color: var(--accent); }
+.btn.small { padding: 8px 14px; min-height: 40px; font-size: 0.9rem; }
+.btn:active { transform: translateY(1px); }
+.icon {
+  flex: 0 0 auto;
+  width: 44px; height: 44px;
+  border: 0; border-radius: 50%;
+  background: var(--surface-2); color: var(--ink-2);
+  font-size: 1.4rem; cursor: pointer;
+}
+.icon:hover { color: var(--warn); }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+
+.paint {
+  display: flex; gap: 14px; align-items: flex-start;
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
+}
+.paint:first-child { border-top: 0; padding-top: 0; }
+.dot { flex: 0 0 auto; width: 36px; height: 36px; border-radius: 10px; border: 1.5px solid var(--line); margin-top: 2px; }
+.paint h3 { margin: 0; font: 700 1.05rem var(--round); }
+.paint p { margin: 2px 0; }
+.need, .spare { color: var(--ink-2); font-size: 0.92rem; }
+.buy { font-size: 1.1rem; }
+.cost { color: var(--accent); font-weight: 700; margin-left: 4px; }
+.empty { color: var(--ink-2); margin: 0; }
+.total { font: 700 1.1rem var(--round); margin: 14px 0 8px; }
+.total:empty { display: none; }
+.status { min-height: 1.5em; color: var(--accent); font-weight: 600; margin: 8px 0 0; }
+
+.tins { margin-top: 12px; border-top: 1px solid var(--line); padding-top: 12px; }
+.tins summary { cursor: pointer; font-weight: 700; color: var(--accent); min-height: 32px; }
+.tins .hint { margin: 8px 0 12px; }
+.prices { display: flex; flex-wrap: wrap; gap: 12px; margin: 12px 0; }
+.prices .field { flex: 1 1 120px; }
+
+.foot { color: var(--ink-2); font-size: 0.9rem; padding: 12px 0; }
+.foot a { color: var(--accent); }
+
+@media (max-width: 480px) {
+  .card { padding: 16px; }
+  .field { flex-basis: 100%; }
+  .dims .field { flex-basis: calc(50% - 6px); }
+  .paint-row .field.grow { flex-basis: calc(100% - 80px); }
+}

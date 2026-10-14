@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RoomCoat: how much paint for your room</title>
+<meta name="description" content="Measure your room, and RoomCoat works out how much paint you need and the cheapest tins to buy, with doors, windows, ceilings and new plaster counted.">
+<meta name="theme-color" content="#2f6f6a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='12' y='18' width='40' height='38' rx='6' fill='%23e9f3f1' stroke='%232f6f6a' stroke-width='4'/%3E%3Cpath d='M12 26h40' stroke='%232f6f6a' stroke-width='4'/%3E%3Ccircle cx='25' cy='38' r='3.5' fill='%23263330'/%3E%3Ccircle cx='39' cy='38' r='3.5' fill='%23263330'/%3E%3Cpath d='M26 46q6 5 12 0' stroke='%23263330' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#result">Skip to what to buy</a>
+<header class="top">
+  <h1>RoomCoat</h1>
+  <p class="lede">Measure your room and get how much paint it needs, and the cheapest tins to buy.</p>
+</header>
+
+<main>
+  <section class="card" id="step-where" aria-labelledby="h-where">
+    <h2 id="h-where"><span class="num">1</span> Where are you buying paint?</h2>
+    <div class="row">
+      <label class="field">
+        <span>Shop in</span>
+        <select id="region">
+          <option value="us">the US (feet, gallons)</option>
+          <option value="uk">the UK or Ireland (metres, litres)</option>
+          <option value="au">Australia or NZ (metres, litres)</option>
+        </select>
+      </label>
+      <label class="field">
+        <span>Coats</span>
+        <select id="coats">
+          <option value="1">1 coat (same colour, touch up)</option>
+          <option value="2" selected>2 coats (most jobs)</option>
+          <option value="3">3 coats</option>
+        </select>
+      </label>
+    </div>
+  </section>
+
+  <section class="card" id="step-rooms" aria-labelledby="h-rooms">
+    <h2 id="h-rooms"><span class="num">2</span> Measure each room</h2>
+    <p class="hint" id="measure-hint">Measure along the floor, wall to wall. Write it any way: <b>12' 6"</b>, <b>12 6</b> or <b>12.5</b>.</p>
+    <div id="rooms"></div>
+    <div class="actions">
+      <button type="button" class="btn" id="add-room">+ Add a room</button>
+      <button type="button" class="btn ghost" id="try-example">Try an example</button>
+    </div>
+  </section>
+
+  <section class="card result" id="result" aria-labelledby="h-result" tabindex="-1">
+    <h2 id="h-result"><span class="num">3</span> What to buy</h2>
+    <div id="paints" aria-live="polite"></div>
+    <p class="total" id="total"></p>
+    <div class="actions">
+      <button type="button" class="btn" id="copy-list">Copy shopping list</button>
+      <button type="button" class="btn ghost" id="copy-link">Copy share link</button>
+    </div>
+    <p class="status" id="status" role="status"></p>
+
+    <details class="tins" id="tins">
+      <summary>Tin sizes, prices and coverage</summary>
+      <p class="hint">Change these to match your shop. Coverage is printed on the tin. Leave a price blank if a size isn't sold.</p>
+      <label class="field">
+        <span id="coverage-label">Covers (sq ft per gallon)</span>
+        <input id="coverage" inputmode="decimal" autocomplete="off">
+      </label>
+      <div id="prices" class="prices"></div>
+      <button type="button" class="btn ghost small" id="reset-tins">Back to usual prices</button>
+    </details>
+  </section>
+</main>
+
+<footer class="foot">
+  <p>Made by Johan · <a href="https://github.com/johanthegoatt/roomcoat">Source</a></p>
+</footer>
+
+<template id="room-tpl">
+  <article class="room">
+    <div class="room-head">
+      <label class="sr" data-for="name">Room name</label>
+      <input class="room-name" data-k="name" maxlength="40" autocomplete="off">
+      <button type="button" class="icon remove" aria-label="Remove this room">×</button>
+    </div>
+    <div class="dims">
+      <label class="field"><span>Length</span><input data-k="length" inputmode="decimal" autocomplete="off"><small class="read" aria-live="polite"></small></label>
+      <label class="field"><span>Width</span><input data-k="width" inputmode="decimal" autocomplete="off"><small class="read" aria-live="polite"></small></label>
+      <label class="field"><span>Wall height</span><input data-k="height" inputmode="decimal" autocomplete="off"><small class="read" aria-live="polite"></small></label>
+    </div>
+    <div class="dims">
+      <label class="field"><span>Doors</span><input type="number" min="0" max="20" data-k="doors" inputmode="numeric"></label>
+      <label class="field"><span>Windows</span><input type="number" min="0" max="30" data-k="windows" inputmode="numeric"></label>
+      <label class="field"><span>Walls are</span>
+        <select data-k="surface">
+          <option value="painted">painted and smooth</option>
+          <option value="new">new plaster or drywall</option>
+          <option value="textured">textured or rough</option>
+        </select>
+      </label>
+    </div>
+    <div class="dims paint-row">
+      <label class="field grow"><span>Wall paint</span><input data-k="paint" maxlength="40" autocomplete="off" placeholder="Colour name"></label>
+      <label class="field swatch"><span>Colour</span><input type="color" data-k="colour"></label>
+    </div>
+    <label class="check"><input type="checkbox" data-k="ceiling"> Paint the ceiling too</label>
+    <label class="check"><input type="checkbox" data-k="darkToLight"> Going from a dark colour to a light one</label>
+    <p class="room-sum"></p>
+  </article>
+</template>
+
+<script src="src/engine.js"></script>
+<script src="src/app.js"></script>
+</body>
+</html>
