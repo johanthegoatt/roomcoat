@@ -109,7 +109,36 @@
   </article>
 </template>
 
+<div class="dab-dock" id="dab-dock">
+  <div class="bubble" id="dab-bubble" role="status" aria-live="polite"></div>
+  <button type="button" class="dab" id="dab" aria-label="Dab the paint tin. Tap for a tip." data-mood="sleepy">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <g class="d-body">
+        <path class="d-handle" d="M24 44 Q60 4 96 44" fill="none" stroke-width="4" stroke-linecap="round"/>
+        <rect class="d-tin" x="22" y="40" width="76" height="68" rx="9" stroke-width="3.5"/>
+        <path class="d-paint" d="M22 49 h76 v9 q-6 7 -12 0 q-5 -5 -10 2 v10 q-4 6 -8 0 v-8 q-6 -6 -12 0 q-6 6 -12 -1 q-6 -6 -12 0 q-6 6 -10 -2 z"/>
+        <rect class="d-lid" x="18" y="36" width="84" height="12" rx="5" stroke-width="3.5"/>
+        <g class="d-eyes">
+          <ellipse class="d-white" cx="46" cy="80" rx="8" ry="9"/>
+          <ellipse class="d-white" cx="74" cy="80" rx="8" ry="9"/>
+          <circle class="d-pupil" cx="46" cy="81" r="4"/>
+          <circle class="d-pupil" cx="74" cy="81" r="4"/>
+          <path class="d-closed" d="M39 81 q7 5 14 0 M67 81 q7 5 14 0"/>
+        </g>
+        <circle class="d-cheek" cx="34" cy="92" r="4.5"/>
+        <circle class="d-cheek" cx="86" cy="92" r="4.5"/>
+        <path class="d-mouth happy" d="M52 94 q8 8 16 0"/>
+        <path class="d-mouth worried" d="M52 99 q8 -6 16 0"/>
+        <ellipse class="d-mouth wow" cx="60" cy="97" rx="4.5" ry="5.5"/>
+        <path class="d-mouth sleepy" d="M55 96 h10"/>
+      </g>
+    </svg>
+  </button>
+  <button type="button" class="dab-hide" id="dab-hide" aria-label="Hide Dab">×</button>
+</div>
+
 <script src="src/engine.js"></script>
+<script src="src/dab.js"></script>
 <script src="src/app.js"></script>
 </body>
 </html>
