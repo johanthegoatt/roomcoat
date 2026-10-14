@@ -151,6 +151,53 @@
     return { region: region, coverage: coverage, rooms: rooms, paints: list, total: total };
   }
 
+  // Read a length the way a tape measure or a plan writes it, and return
+  // metres. Imperial: 12, 12.5, 12' 6", 12ft 6in, 12 6, 150in. Metric: 3.6,
+  // 3,6 (comma decimal), 360cm, 3600mm, 3.6 m. A bare number is feet for
+  // imperial and metres for metric, except a metric number over 100 which
+  // is almost always centimetres or millimetres typed without the unit.
+  function parseLength(text, units) {
+    if (typeof text === "number") return isFinite(text) && text >= 0 ? (units === "imperial" ? text * FT : text) : null;
+    var s = String(text || "").trim().toLowerCase()
+      .replace(/[\u2032\u2019]/g, "'").replace(/[\u2033\u201d]/g, '"').replace(/''/g, '"');
+    if (!s) return null;
+    var m;
+    if ((m = s.match(/^(\d+(?:[.,]\d+)?)\s*(mm|cm|m|metres?|meters?)$/))) {
+      var v = parseFloat(m[1].replace(",", "."));
+      return m[2] === "mm" ? v / 1000 : m[2] === "cm" ? v / 100 : v;
+    }
+    if ((m = s.match(/^(\d+(?:\.\d+)?)\s*(?:'|ft|feet|foot)\s*(?:(\d+(?:\.\d+)?)\s*(?:"|in|inches|inch)?)?$/)))
+      return (parseFloat(m[1]) + (m[2] ? parseFloat(m[2]) / 12 : 0)) * FT;
+    if ((m = s.match(/^(\d+(?:\.\d+)?)\s*(?:"|in|inches|inch)$/))) return parseFloat(m[1]) * 0.0254;
+    if (units === "imperial" && (m = s.match(/^(\d+)\s+(\d+(?:\.\d+)?)$/)))
+      return (parseFloat(m[1]) + parseFloat(m[2]) / 12) * FT;
+    if ((m = s.match(/^\d+(?:[.,]\d+)?$/))) {
+      var n = parseFloat(s.replace(",", "."));
+      if (units === "imperial") return n * FT;
+      return n > 1000 ? n / 1000 : n > 100 ? n / 100 : n;
+    }
+    return null;
+  }
+
+  // Show metres back in the shopper's units, rounded like a tape measure.
+  function showLength(m, units) {
+    if (!(m >= 0)) return "";
+    if (units !== "imperial") return (Math.round(m * 100) / 100) + " m";
+    var inches = Math.round(m / 0.0254);
+    var f = Math.floor(inches / 12), i = inches % 12;
+    return i ? f + "' " + i + '"' : f + "'";
+  }
+
+  function showArea(m2, units) {
+    return units === "imperial" ? Math.round(m2 / SQFT) + " sq ft" : (Math.round(m2 * 10) / 10) + " m²";
+  }
+
+  // Paint amounts: gallons with one decimal in the US, litres elsewhere.
+  function showVolume(ml, units) {
+    if (units === "imperial") return (Math.round(ml / GAL * 10) / 10) + " gal";
+    return (Math.round(ml / 100) / 10) + " L";
+  }
+
   function gcd(a, b) { while (b) { var t = a % b; a = b; b = t; } return a; }
 
   // The cheapest mix of tins that holds at least `need` mL. Unbounded
@@ -202,6 +249,7 @@
   return {
     REGIONS: REGIONS, SQFT: SQFT, FT: FT, GAL: GAL,
     roomArea: roomArea, coatsFor: coatsFor, wasteFor: wasteFor,
-    litres: litres, plan: plan, bestCans: bestCans
+    litres: litres, plan: plan, bestCans: bestCans,
+    parseLength: parseLength, showLength: showLength, showArea: showArea, showVolume: showVolume
   };
 });
