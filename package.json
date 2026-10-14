@@ -1,0 +1,10 @@
+{
+  "name": "roomcoat",
+  "version": "0.1.0",
+  "private": true,
+  "description": "How much paint for your room, and the cheapest tins to buy. With Dab the paint tin.",
+  "scripts": {
+    "test": "node --test"
+  },
+  "license": "MIT"
+}
