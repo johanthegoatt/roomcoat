@@ -302,6 +302,13 @@
             ? "About " + R.showVolume(paint.buy.spare, u) + " left over for touch-ups."
             : "Almost nothing left over, so keep the tin for touch-ups.";
           body.appendChild(h); body.appendChild(need); body.appendChild(buy); body.appendChild(spare);
+          if (paint.buy.alt) {
+            var alt = document.createElement("p");
+            alt.className = "alt";
+            alt.textContent = "Or " + buyText(paint.buy.alt) + " for " + money(paint.buy.alt.more) +
+              " more: fewer tins and " + R.showVolume(paint.buy.alt.ml - paint.buy.ml, u) + " more paint.";
+            body.appendChild(alt);
+          }
         } else {
           buy.textContent = "Add a price for at least one tin size below.";
           body.appendChild(h); body.appendChild(need); body.appendChild(buy);

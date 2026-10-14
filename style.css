@@ -150,6 +150,7 @@ input[aria-invalid="true"] { border-color: var(--warn); }
 .need, .spare { color: var(--ink-2); font-size: 0.92rem; }
 .buy { font-size: 1.1rem; }
 .cost { color: var(--accent); font-weight: 700; margin-left: 4px; }
+.alt { font-size: 0.92rem; background: var(--accent-soft); border-radius: 10px; padding: 6px 10px; margin-top: 8px !important; }
 .empty { color: var(--ink-2); margin: 0; }
 .total { font: 700 1.1rem var(--round); margin: 14px 0 8px; }
 .total:empty { display: none; }

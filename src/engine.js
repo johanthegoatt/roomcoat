@@ -234,16 +234,34 @@
       if (best < 0 || cost[w] < cost[best] - 1e-9) best = w;
     }
     if (best < 0) return null;
-    var tally = {};
-    for (var x = best; x > 0; x -= sizes[pick[x]]) {
-      var id = sold[pick[x]].id;
-      tally[id] = (tally[id] || 0) + 1;
+
+    function items(v) {
+      var tally = {};
+      for (var x = v; x > 0; x -= sizes[pick[x]]) {
+        var id = sold[pick[x]].id;
+        tally[id] = (tally[id] || 0) + 1;
+      }
+      return sold.filter(function (c) { return tally[c.id]; })
+        .sort(function (a, b) { return b.ml - a.ml; })
+        .map(function (c) { return { id: c.id, name: c.name, ml: c.ml, price: num(c.price, 0), qty: tally[c.id] }; });
     }
-    var items = sold.filter(function (c) { return tally[c.id]; })
-      .sort(function (a, b) { return b.ml - a.ml; })
-      .map(function (c) { return { id: c.id, name: c.name, ml: c.ml, price: num(c.price, 0), qty: tally[c.id] }; });
-    var bought = best * g;
-    return { items: items, cost: cost[best], ml: bought, spare: bought - need };
+
+    var out = { items: items(best), cost: cost[best], ml: best * g, spare: best * g - need };
+
+    // Small tins cost far more per litre, so the cheapest mix can be three
+    // gallons and two quarts when four gallons cost a dollar more. Offer
+    // the most paint we can get for at most 5% more (and at most the price
+    // of the smallest tin), as long as it means fewer tins to carry.
+    var cheapest = Math.min.apply(null, sold.map(function (c) { return num(c.price, 0); }));
+    var cap = cost[best] + Math.min(cost[best] * 0.05, cheapest);
+    var alt = -1;
+    for (var y = best + 1; y <= top; y++) {
+      if (cost[y] <= cap + 1e-9 && count[y] < count[best]) alt = y;
+    }
+    if (alt > 0) {
+      out.alt = { items: items(alt), cost: cost[alt], ml: alt * g, spare: alt * g - need, more: cost[alt] - cost[best] };
+    }
+    return out;
   }
 
   return {

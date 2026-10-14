@@ -86,3 +86,16 @@ test("a bigger room never needs less paint", () => {
     last = p.paints[0].ml;
   }
 });
+
+test("3.3 gallons: cheapest is 3 gallons + 2 quarts, with 4 gallons offered for $1 more", () => {
+  const b = R.bestCans(3.3 * R.GAL, R.REGIONS.us.cans);
+  assert.deepEqual(b.items.map((i) => [i.id, i.qty]), [["gal", 3], ["qt", 2]]);
+  assert.equal(b.cost, 179);
+  assert.deepEqual(b.alt.items.map((i) => [i.id, i.qty]), [["gal", 4]]);
+  assert.equal(b.alt.more, 1);
+});
+
+test("no alternative when the cheapest is already the fewest tins", () => {
+  const b = R.bestCans(6900, R.REGIONS.us.cans);
+  assert.equal(b.alt, undefined);
+});
