@@ -19,7 +19,7 @@ The online calculators answer "1.7 gallons", which is not something you can buy.
 - **Coats.** New plaster or drywall gets a sealing coat: a separate primer in the US and Australia, a thinned mist coat of the same emulsion in the UK. Dark to light adds a top coat.
 - **Waste.** 5% on smooth walls and 10% on textured ones, for trays, rollers and cutting in ([Firgelli](https://www.firgelliauto.com/blogs/engineering-calculators/paint-coverage-calculator-area-and-coats)).
 - **Tins.** An unbounded knapsack over volume (in mL, reduced by the gcd of the tin sizes) finds the cheapest mix that holds at least what you need. Price ties go to less paint left over. If fewer, bigger tins cost at most 5% more (and no more than the smallest tin), it offers them as an "or".
-- **Sizes as people write them.** `12' 6"`, `12 6`, `12ft 6in`, `150in`, `3.6`, `3,6`, `360cm`, `3600mm`. Each box says what it read underneath, so a typo shows up straight away. Switching between feet and metres converts what you typed.
+- **Sizes as people write them.** `12' 6"`, `12 6`, `8' 6 1/2"`, `6½in`, `12ft 6in`, `150in`, `3.6`, `3,6`, `360cm`, `3600mm`. Each box says what it read underneath, so a typo shows up straight away. Switching between feet and metres converts what you typed.
 - Rooms with the same paint name share tins. Plans are kept in the browser and can be shared as a link (the plan is in the URL fragment).
 
 ## Dab

@@ -38,3 +38,15 @@ test("lengths, areas and amounts shown back in the shopper's units", () => {
   assert.equal(R.showVolume(2 * R.GAL, "imperial"), "2 gal");
   assert.equal(R.showVolume(6540, "metric"), "6.5 L");
 });
+
+test("fractions of an inch, typed or as the ½ characters", () => {
+  const ftIn = (f, i) => (f + i / 12) * R.FT;
+  near(R.parseLength("8' 6 1/2\"", "imperial"), ftIn(8, 6.5));
+  near(R.parseLength("8 6 1/2", "imperial"), ftIn(8, 6.5));
+  near(R.parseLength("8ft 6½in", "imperial"), ftIn(8, 6.5));
+  near(R.parseLength("8' 3/4\"", "imperial"), ftIn(8, 0.75));
+  near(R.parseLength("12 1/2", "imperial"), 12.5 * R.FT);
+  near(R.parseLength("150 3/8 in", "imperial"), 150.375 * 0.0254);
+  near(R.parseLength("10' 5⅛\"", "imperial"), ftIn(10, 5.125));
+  assert.equal(R.parseLength("8 6 1/0", "imperial"), null);
+});

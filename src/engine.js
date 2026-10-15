@@ -154,6 +154,21 @@
     return { region: region, coverage: coverage, rooms: rooms, paints: list, total: total };
   }
 
+  var VULGAR = { "\u00bd": "1/2", "\u00bc": "1/4", "\u00be": "3/4", "\u215b": "1/8", "\u215c": "3/8", "\u215d": "5/8", "\u215e": "7/8" };
+
+  // Tape measures are read in fractions of an inch: 6 1/2, 6½, 3/4. Each one
+  // becomes a decimal (6.5) before the patterns below see it. A zero
+  // denominator means the text isn't a length at all.
+  function fractions(s) {
+    s = s.replace(/(\d)?\s*([\u00bc-\u00be\u215b-\u215e])/g, function (_, d, f) { return (d || "") + " " + VULGAR[f]; });
+    var bad = false;
+    s = s.replace(/(?:(\d+)\s+)?(\d+)\/(\d+)/g, function (_, whole, n, d) {
+      if (+d === 0) { bad = true; return ""; }
+      return String((whole ? +whole : 0) + n / d);
+    });
+    return bad ? null : s.trim();
+  }
+
   // Read a length the way a tape measure or a plan writes it, and return
   // metres. Imperial: 12, 12.5, 12' 6", 12ft 6in, 12 6, 150in. Metric: 3.6,
   // 3,6 (comma decimal), 360cm, 3600mm, 3.6 m. A bare number is feet for
@@ -163,6 +178,8 @@
     if (typeof text === "number") return isFinite(text) && text >= 0 ? (units === "imperial" ? text * FT : text) : null;
     var s = String(text || "").trim().toLowerCase()
       .replace(/[\u2032\u2019]/g, "'").replace(/[\u2033\u201d]/g, '"').replace(/''/g, '"');
+    s = fractions(s);
+    if (s === null) return null;
     if (!s) return null;
     var m;
     if ((m = s.match(/^(\d+(?:[.,]\d+)?)\s*(mm|cm|m|metres?|meters?)$/))) {
