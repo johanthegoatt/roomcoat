@@ -133,7 +133,10 @@
       var name = (room.paint || "").trim() || "Wall paint";
       var key = "wall:" + name.toLowerCase();
       var wallMl = litres(a.walls, c.top, coverage, w) * 1000;
-      var ceilMl = litres(a.ceiling, Math.max(2, num(input.coats, 2)), coverage, 0.05) * 1000;
+      // A new ceiling needs sealing as much as new walls do: in primer
+      // countries the primer below covers it, elsewhere it takes the mist coat.
+      var ceilCoats = Math.max(2, num(input.coats, 2)) + (room.surface === "new" && !r.primerSeparate ? 1 : 0);
+      var ceilMl = litres(a.ceiling, ceilCoats, coverage, 0.05) * 1000;
       var primerMl = litres(a.walls + a.ceiling, c.primer, coverage, w) * 1000;
       add(key, name, room.colour || "#d9cbb8", wallMl, a.walls);
       add("ceiling", "Ceiling paint", "#ffffff", ceilMl, a.ceiling);

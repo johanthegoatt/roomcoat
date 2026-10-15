@@ -99,3 +99,12 @@ test("no alternative when the cheapest is already the fewest tins", () => {
   const b = R.bestCans(6900, R.REGIONS.us.cans);
   assert.equal(b.alt, undefined);
 });
+
+test("a new plaster ceiling gets its mist coat too where there's no separate primer", () => {
+  const room = { length: 4, width: 3, height: 2.4, ceiling: true };
+  const ceiling = (region, surface) =>
+    R.plan({ region, rooms: [{ ...room, surface }] }).paints.find((p) => p.key === "ceiling").ml;
+  assert.ok(Math.abs(ceiling("uk", "new") / ceiling("uk", "smooth") - 3 / 2) < 1e-9);
+  // In the US the primer already covers the ceiling, so its top coats stay the same.
+  assert.equal(ceiling("us", "new"), ceiling("us", "smooth"));
+});
