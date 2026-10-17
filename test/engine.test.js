@@ -108,3 +108,28 @@ test("a new plaster ceiling gets its mist coat too where there's no separate pri
   // In the US the primer already covers the ceiling, so its top coats stay the same.
   assert.equal(ceiling("us", "new"), ceiling("us", "smooth"));
 });
+
+test("paint already owned is subtracted before picking tins", () => {
+  var room = { length: 4, width: 3, height: 2.4, paint: "Sage" };
+  var base = R.plan({ region: "uk", coats: 2, rooms: [room] });
+  var wall = base.paints.find(function (p) { return p.key.indexOf("wall:") === 0; });
+  assert.ok(wall.ml > 1000, "needs more than a litre to test with");
+  var have = {}; have[wall.key] = 1000; // one litre already
+  var after = R.plan({ region: "uk", coats: 2, rooms: [room], have: have });
+  var wall2 = after.paints.find(function (p) { return p.key === wall.key; });
+  assert.ok(Math.abs(wall2.needMl - (wall.ml - 1000)) < 1e-6);
+  assert.equal(wall2.haveMl, 1000);
+  assert.ok(after.total <= base.total);
+});
+
+test("having enough paint means nothing to buy", () => {
+  var room = { length: 4, width: 3, height: 2.4, paint: "Sage" };
+  var base = R.plan({ region: "uk", coats: 2, rooms: [room] });
+  var wall = base.paints.find(function (p) { return p.key.indexOf("wall:") === 0; });
+  var have = {}; have[wall.key] = wall.ml + 5000;
+  var after = R.plan({ region: "uk", coats: 2, rooms: [room], have: have });
+  var wall2 = after.paints.find(function (p) { return p.key === wall.key; });
+  assert.equal(wall2.enough, true);
+  assert.equal(wall2.buy, null);
+  assert.equal(wall2.needMl, 0);
+});

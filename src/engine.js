@@ -145,9 +145,17 @@
     });
 
     var cans = input.cans || r.cans;
+    var have = input.have || {};
     var list = order.map(function (k) {
       var p = paints[k];
-      p.buy = bestCans(p.ml, cans);
+      // Count paint already in the cupboard. Most unused paint is a part-tin
+      // of the same colour, and buying around it is the simplest way to stop
+      // the pile growing (PaintCare: about a tenth of paint sold goes unused).
+      var haveMl = Math.max(0, num(have[k], 0));
+      p.haveMl = haveMl;
+      p.needMl = Math.max(0, p.ml - haveMl);
+      p.enough = haveMl > 0 && p.needMl <= 0;
+      p.buy = p.needMl > 0 ? bestCans(p.needMl, cans) : null;
       return p;
     });
     var total = list.reduce(function (s, p) { return s + (p.buy ? p.buy.cost : 0); }, 0);
