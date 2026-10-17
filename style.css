@@ -229,3 +229,7 @@ input[aria-invalid="true"] { border-color: var(--warn); }
   .dims .field { flex-basis: calc(50% - 6px); }
   .paint-row .field.grow { flex-basis: calc(100% - 80px); }
 }
+
+/* Paint you already have: a single field above the shopping list. */
+.have-field { margin: 0 0 14px; max-width: 320px; }
+.have-field small { font-weight: 500; color: var(--ink-2); }

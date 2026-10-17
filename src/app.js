@@ -23,7 +23,7 @@
     return { name: "Room " + n, length: "", width: "", height: "", doors: 1, windows: 1, ceiling: false, surface: "painted", darkToLight: false, paint: "", colour: "#d9cbb8" };
   }
 
-  var state = { region: "us", coats: 2, coverage: "", prices: {}, rooms: [blankRoom(1)] };
+  var state = { region: "us", coats: 2, coverage: "", have: "", prices: {}, rooms: [blankRoom(1)] };
 
   function units() { return R.REGIONS[state.region].units; }
 
@@ -50,6 +50,7 @@
     state.region = R.REGIONS[got.region] ? got.region : "us";
     state.coats = [1, 2, 3].indexOf(+got.coats) >= 0 ? +got.coats : 2;
     state.coverage = got.coverage || "";
+    state.have = got.have || "";
     state.prices = got.prices && typeof got.prices === "object" ? got.prices : {};
     state.rooms = got.rooms.slice(0, 20).map(function (r, i) { return Object.assign(blankRoom(i + 1), r); });
     if (!state.rooms.length) state.rooms = [blankRoom(1)];
@@ -227,6 +228,7 @@
     });
   }
   $("coverage").addEventListener("input", function () { state.coverage = this.value; update(); });
+  $("have").addEventListener("input", function () { state.have = this.value; update(); });
   $("prices").addEventListener("input", function (e) {
     var id = e.target.dataset.can;
     if (!id) return;
@@ -254,9 +256,35 @@
     return buy.items.map(function (it) { return it.qty + " × " + it.name; }).join(" + ");
   }
 
+  // The "paint you already have" box is in the shopper's units (litres, or
+  // US gallons), and applies to the main wall colour, the one most people
+  // have a part-tin of. Convert it to mL and point it at that paint's key.
+  function haveMl() {
+    var v = parseFloat(String(state.have).replace(",", "."));
+    if (!(v > 0)) return 0;
+    return units() === "imperial" ? v * R.GAL : v * 1000;
+  }
+  function mainWallKey(plan) {
+    var best = null;
+    plan.paints.forEach(function (p) {
+      if (p.key.indexOf("wall:") === 0 && (!best || p.ml > best.ml)) best = p;
+    });
+    return best ? best.key : null;
+  }
+
   function update() {
     var u = units();
-    var p = R.plan({ region: state.region, coats: state.coats, coverage: coverage(), cans: cans(), rooms: engineRooms() });
+    $("have-label").innerHTML = (u === "imperial"
+      ? "Paint you already have, of the main colour (gallons)"
+      : "Paint you already have, of the main colour (litres)") + " <small>(optional)</small>";
+    var base = { region: state.region, coats: state.coats, coverage: coverage(), cans: cans(), rooms: engineRooms() };
+    var p = R.plan(base);
+    var key = mainWallKey(p);
+    var ownMl = haveMl();
+    if (key && ownMl > 0) {
+      var have = {}; have[key] = ownMl;
+      p = R.plan(Object.assign({}, base, { have: have }));
+    }
     last = p;
     var box = $("paints");
     box.textContent = "";
@@ -290,8 +318,18 @@
         var need = document.createElement("p");
         need.className = "need";
         need.textContent = "Needs about " + R.showVolume(paint.ml, u) + " for " + R.showArea(paint.area, u) + ".";
+        if (paint.haveMl > 0) {
+          need.textContent += " You have " + R.showVolume(paint.haveMl, u) +
+            (paint.enough ? "." : ", so buy for " + R.showVolume(paint.needMl, u) + ".");
+        }
         var buy = document.createElement("p");
         buy.className = "buy";
+        if (paint.enough) {
+          buy.textContent = "You already have enough. Nothing to buy for this one.";
+          body.appendChild(h); body.appendChild(need); body.appendChild(buy);
+          card.appendChild(sw); card.appendChild(body); box.appendChild(card);
+          return;
+        }
         if (paint.buy) {
           buy.innerHTML = "<b></b> <span class=\"cost\"></span>";
           buy.querySelector("b").textContent = buyText(paint.buy);
@@ -377,6 +415,7 @@
   load();
   $("region").value = state.region;
   $("coats").value = String(state.coats);
+  $("have").value = state.have || "";
   renderRooms();
   renderTins();
   update();
