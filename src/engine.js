@@ -13,6 +13,15 @@
   var FT = 0.3048;         // m in one foot
   var GAL = 3785.411784;   // mL in one US gallon
 
+  // Woodwork allowances, in m², for the trim option. The skirting is the room's
+  // perimeter times the height of the board you actually paint (about 150 mm,
+  // a common skirting height). A door frame and architrave, both sides, comes
+  // to roughly 0.6 m²; a window frame with sill and reveal to about 0.5 m².
+  // These are the painted face only, not the wall behind.
+  var SKIRT_H = 0.15;
+  var DOOR_FRAME = 0.6;
+  var WINDOW_FRAME = 0.5;
+
   // Defaults per country. Door and window sizes are the ones paint
   // calculators subtract (US: 20 and 15 sq ft; UK/AU: a 1981 x 762 mm door
   // and a typical 1.2 x 1.2 m window). Coverage is a little under what the
@@ -23,6 +32,7 @@
       label: "the US", units: "imperial", money: "$",
       door: 20 * SQFT, window: 15 * SQFT,
       coverage: 350 * SQFT / (GAL / 1000),          // 350 sq ft per gallon, as m²/L
+      trimCoverage: 400 * SQFT / (GAL / 1000),      // gloss/satin covers a touch more
       primerSeparate: true,
       cans: [
         { id: "qt", name: "quart", ml: 946, price: 22 },
@@ -34,6 +44,7 @@
       label: "the UK or Ireland", units: "metric", money: "£",
       door: 1.51, window: 1.44,
       coverage: 12,
+      trimCoverage: 16,
       primerSeparate: false,
       cans: [
         { id: "1l", name: "1 L tin", ml: 1000, price: 14 },
@@ -46,6 +57,7 @@
       label: "Australia or NZ", units: "metric", money: "$",
       door: 1.51, window: 1.44,
       coverage: 14,
+      trimCoverage: 16,
       primerSeparate: true,
       cans: [
         { id: "1l", name: "1 L tin", ml: 1000, price: 38 },
@@ -79,6 +91,21 @@
       walls: walls,
       ceiling: room.ceiling ? L * W : 0
     };
+  }
+
+  // Painted area of the woodwork in one room, in m²: skirting round the whole
+  // perimeter, plus the door and window frames. Zero unless the trim box is
+  // ticked. The skirting height can be set per room (room.skirt, in metres);
+  // it defaults to a normal 150 mm board.
+  function trimArea(room) {
+    if (!room || !room.trim) return 0;
+    var L = Math.max(0, num(room.length, 0));
+    var W = Math.max(0, num(room.width, 0));
+    var doors = Math.max(0, Math.round(num(room.doors, 0)));
+    var windows = Math.max(0, Math.round(num(room.windows, 0)));
+    var skirtH = Math.max(0, num(room.skirt, SKIRT_H));
+    var perimeter = 2 * (L + W);
+    return perimeter * skirtH + doors * DOOR_FRAME + windows * WINDOW_FRAME;
   }
 
   // Coats that a surface really needs. New plaster or drywall takes a
@@ -138,9 +165,16 @@
       var ceilCoats = Math.max(2, num(input.coats, 2)) + (room.surface === "new" && !r.primerSeparate ? 1 : 0);
       var ceilMl = litres(a.ceiling, ceilCoats, coverage, 0.05) * 1000;
       var primerMl = litres(a.walls + a.ceiling, c.primer, coverage, w) * 1000;
+      // Woodwork: skirting and frames in a trim paint, two coats, its own
+      // coverage. People buy the wall colour and forget the gloss for the
+      // skirting and frames until they are standing in the room.
+      var tArea = trimArea(room);
+      var trimCov = num(input.trimCoverage, r.trimCoverage) || r.trimCoverage;
+      var trimMl = litres(tArea, 2, trimCov, 0.10) * 1000;
       add(key, name, room.colour || "#d9cbb8", wallMl, a.walls);
       add("ceiling", "Ceiling paint", "#ffffff", ceilMl, a.ceiling);
       add("primer", "Primer", "#f2efe8", primerMl, a.walls + a.ceiling);
+      add("trim", "Woodwork paint", "#f7f7f4", trimMl, tArea);
       rooms.push({ index: i, name: room.name || "Room " + (i + 1), area: a, coats: c, wallMl: wallMl });
     });
 
@@ -294,7 +328,7 @@
 
   return {
     REGIONS: REGIONS, SQFT: SQFT, FT: FT, GAL: GAL,
-    roomArea: roomArea, coatsFor: coatsFor, wasteFor: wasteFor,
+    roomArea: roomArea, trimArea: trimArea, coatsFor: coatsFor, wasteFor: wasteFor,
     litres: litres, plan: plan, bestCans: bestCans,
     parseLength: parseLength, showLength: showLength, showArea: showArea, showVolume: showVolume
   };
