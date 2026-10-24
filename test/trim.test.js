@@ -28,3 +28,23 @@ test("ticking trim adds a woodwork paint to the plan", () => {
   // The woodwork is bought separately, so it adds to the bill.
   assert.ok(withTrim.total > without.total);
 });
+
+test("bare woodwork adds a wood primer, painted woodwork doesn't", () => {
+  const room = { length: 4, width: 3, height: 2.4, doors: 1, windows: 1, trim: true };
+  const bare = E.plan({ region: "uk", coats: 2, rooms: [Object.assign({}, room, { trimBare: true })] });
+  const painted = E.plan({ region: "uk", coats: 2, rooms: [room] });
+  const primer = bare.paints.find((p) => p.key === "trimprimer");
+  assert.ok(primer && primer.ml > 0, "wood primer present when bare");
+  assert.ok(!painted.paints.find((p) => p.key === "trimprimer"), "no wood primer when already painted");
+  // One priming coat is less than the two topcoats over the same area.
+  const topcoat = bare.paints.find((p) => p.key === "trim");
+  assert.ok(primer.ml < topcoat.ml);
+  // Priming costs extra.
+  assert.ok(bare.total > painted.total);
+});
+
+test("bare woodwork needs the trim box ticked to matter", () => {
+  // trimBare without trim does nothing (no woodwork area at all).
+  const p = E.plan({ region: "uk", coats: 2, rooms: [{ length: 4, width: 3, height: 2.4, doors: 1, windows: 1, trimBare: true }] });
+  assert.ok(!p.paints.find((x) => x.key === "trimprimer"));
+});
