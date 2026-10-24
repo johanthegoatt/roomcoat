@@ -171,9 +171,15 @@
       var tArea = trimArea(room);
       var trimCov = num(input.trimCoverage, r.trimCoverage) || r.trimCoverage;
       var trimMl = litres(tArea, 2, trimCov, 0.10) * 1000;
+      // Bare or new woodwork (fresh skirting, an unpainted door) has to be
+      // primed before the topcoats, the same as new plaster on the walls.
+      // People forget the wood primer and come up short, so when the trim is
+      // marked bare it gets one priming coat over the woodwork area.
+      var trimPrimerMl = (room.trim && room.trimBare) ? litres(tArea, 1, trimCov, 0.10) * 1000 : 0;
       add(key, name, room.colour || "#d9cbb8", wallMl, a.walls);
       add("ceiling", "Ceiling paint", "#ffffff", ceilMl, a.ceiling);
       add("primer", "Primer", "#f2efe8", primerMl, a.walls + a.ceiling);
+      add("trimprimer", "Wood primer", "#efeae0", trimPrimerMl, trimPrimerMl > 0 ? tArea : 0);
       add("trim", "Woodwork paint", "#f7f7f4", trimMl, tArea);
       rooms.push({ index: i, name: room.name || "Room " + (i + 1), area: a, coats: c, wallMl: wallMl });
     });
